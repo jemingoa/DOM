@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DOM Traversal Activity</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+    }
+
+    /* Profile Header */
+    .profile {
+        border: 2px solid black;
+        padding: 10px;
+        margin-bottom: 20px;
+        background-color: olive;
+        border-radius: 10px;
+    }
+
+    /* Node Styles */
+    .grandparent {
+        background-color: #6b5413;
+        padding: 15px;
+        margin: 10px;
+        border-radius: 10px;
+
+    }
+
+    .parent {
+        background-color: #4cb495;
+        padding: 15px;
+        margin: 10px;
+        border-radius: 15px;
+    }
+
+    .child {
+        background-color: #7d8eec;
+        padding: 10px;
+        margin: 5px;
+        border-radius: 25px;
+    }
+
+    .highlight {
+        border: 3px solid rgb(196, 45, 45);
+    }
+
+    .container {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    button {
+        margin: 5px;
+        padding: 10px;
+        cursor: pointer;
+        border-radius: 10px;
+    }
+</style>
+</head>
+
+<body>
+
+<!-- PROFILE HEADER -->
+<div class="profile">
+    <h3>John Emmanuel D. Mingoa</h3>
+    <p>Sex: Male</p>
+    <p>Address: Z-6 Manzana, San Jose, Camarines Sur</p>
+    <p>Course: BSIT - 2D</p>
+    <p>School: Partido State University </p>
+    <p>2nd Semester, AY 2025-2026</p>
+    <p>Subject: PF2</p>
+    <p>Instructor: RJF. Abio</p>
+</div>
+
+<!-- BUTTON CONTROLS -->
+<div>
+    <button onclick="traverseDown()">Traverse Down</button>
+    <button onclick="traverseUp()">Traverse Up</button>
+    <button onclick="nextSibling()">Next Sibling</button>
+    <button onclick="prevSibling()">Previous Sibling</button>
+    <button onclick="addChild()">Add Child</button>
+    <button onclick="deleteNode()">Delete Current</button>
+</div>
+
+<!-- DOM TREE -->
+<div id="grandparent" class="grandparent">
+    Grandparent
+    <div class="container">
+        <div class="parent">
+            Parent 1
+            <div class="child">Child 1</div>
+            <div class="child">Child 2</div>
+        </div>
+
+        <div class="parent">
+            Parent 2
+            <div class="child">Child 3</div>
+            <div class="child">Child 4</div>
+        </div>
+    </div>
+</div>
+
+<script>
+let selectedNode = null;
+
+// Add click listeners to all nodes
+function addClickListeners() {
+    const nodes = document.querySelectorAll('.grandparent, .parent, .child');
+
+    nodes.forEach(node => {
+        node.addEventListener('click', function (e) {
+            e.stopPropagation();
+            selectNode(this);
+        });
+    });
+}
+
+// Select node
+function selectNode(node) {
+    if (selectedNode) {
+        selectedNode.classList.remove('highlight');
+    }
+
+    selectedNode = node;
+    selectedNode.classList.add('highlight');
+}
+
+// Traverse Down
+function traverseDown() {
+    if (!selectedNode) return;
+
+    let child = selectedNode.querySelector('.parent, .child');
+
+    if (child) {
+        selectNode(child);
+    } else {
+        alert("No child found.");
+    }
+}
+
+// Traverse Up
+function traverseUp() {
+    if (!selectedNode) return;
+
+    let parent = selectedNode.parentElement.closest('.parent, .grandparent');
+
+    if (parent) {
+        selectNode(parent);
+    } else {
+        alert("No parent found.");
+    }
+}
+
+// Next Sibling
+function nextSibling() {
+    if (!selectedNode) return;
+
+    let next = selectedNode.nextElementSibling;
+
+    if (next && next.classList.contains(selectedNode.classList[0])) {
+        selectNode(next);
+    } else {
+        alert("No next sibling.");
+    }
+}
+
+// Previous Sibling
+function prevSibling() {
+    if (!selectedNode) return;
+
+    let prev = selectedNode.previousElementSibling;
+
+    if (prev && prev.classList.contains(selectedNode.classList[0])) {
+        selectNode(prev);
+    } else {
+        alert("No previous sibling.");
+    }
+}
+
+// Add Child
+function addChild() {
+    if (!selectedNode) return;
+
+    // If grandparent → add new parent with 2 children
+    if (selectedNode.classList.contains('grandparent')) {
+        const container = selectedNode.querySelector('.container');
+
+        let newParent = document.createElement('div');
+        newParent.className = 'parent';
+        newParent.textContent = 'New Parent';
+
+        let child1 = document.createElement('div');
+        child1.className = 'child';
+        child1.textContent = 'New Child';
+
+        let child2 = document.createElement('div');
+        child2.className = 'child';
+        child2.textContent = 'New Child';
+
+        newParent.appendChild(child1);
+        newParent.appendChild(child2);
+        container.appendChild(newParent);
+    }
+
+    // If parent → add child
+    else if (selectedNode.classList.contains('parent')) {
+        let child = document.createElement('div');
+        child.className = 'child';
+        child.textContent = 'New Child';
+
+        selectedNode.appendChild(child);
+    }
+
+    // If child → not allowed
+    else {
+        alert("Cannot add child to a child node.");
+    }
+
+    addClickListeners();
+}
+
+// Delete Node
+function deleteNode() {
+    if (!selectedNode) return;
+
+    if (selectedNode.classList.contains('grandparent')) {
+        alert("Cannot delete the grandparent node.");
+        return;
+    }
+
+    let parent = selectedNode.parentElement;
+    parent.removeChild(selectedNode);
+    selectedNode = null;
+}
+
+// Initialize listeners
+addClickListeners();
+
+</script>
+
+</body>
+</html>
